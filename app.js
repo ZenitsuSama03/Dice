@@ -1,4 +1,6 @@
 //Тоглоомын бүх газар ашиглагдах Глобал хувьсагчдыг энд хагалъя
+//Тоглоом пууссан эсэхийг хадгалах төлөвийн хэвьсагч
+var isNewGame;
 //Аль тоглогч шоо шидэх вэ гэдгийг энд хадгална
 var activePlayer;
 //Хоёр тоглогчийн цуглуулсан оноонууд
@@ -12,6 +14,8 @@ var diceDom = document.querySelector(".dice");
 initGame();
 //Тоглоомыг шинээр эхлэхэд бэлтгэнэ
 function initGame() {
+  //Тоглоом эхэллээ гэдэг тлөвт оруулна
+  isNewGame = true;
   // Тоглогчийн ээлжийг хадгалах хувьсагч,  нэгдүгээр тоглогчийг 0, хоёрдугаар тоглогчийг 1 гэж тэмдэглэе
   activePlayer = 0;
 
@@ -42,42 +46,54 @@ function initGame() {
 }
 // Шоог шидэх Eventlistener
 document.querySelector(".btn-roll").addEventListener("click", function () {
-  // 1-6 доторх санамсаргүй тоо гаргаж авна
-  var diceNumber = Math.floor(Math.random() * 6) + 1;
+  if (isNewGame) {
+    // 1-6 доторх санамсаргүй тоо гаргаж авна
+    var diceNumber = Math.floor(Math.random() * 6) + 1;
 
-  // Шооны зургийг вэб дээрээ гаргаж ирнэ
-  diceDom.style.display = "block";
-  //Буусан санамсаргүй тоонд харгалзах шүүны зургийг вэб дээр гаргаж ирнэ
-  diceDom.src = "dice-" + diceNumber + ".png";
-  // Буусан тоо нь 1ээс ялгаатай бол идэвхтэй тоглогчийн ээлжийн оноог нэмэгдүүлнэ
-  if (diceNumber !== 1) {
-    // 1 ээс ялгаатай тоо буулаа. Буусан тоог тоглогчид нэмж өгнө
-    roundScore = roundScore + diceNumber;
-    document.getElementById("current-" + activePlayer).textContent = roundScore;
+    // Шооны зургийг вэб дээрээ гаргаж ирнэ
+    diceDom.style.display = "block";
+    //Буусан санамсаргүй тоонд харгалзах шүүны зургийг вэб дээр гаргаж ирнэ
+    diceDom.src = "dice-" + diceNumber + ".png";
+    // Буусан тоо нь 1ээс ялгаатай бол идэвхтэй тоглогчийн ээлжийн оноог нэмэгдүүлнэ
+    if (diceNumber !== 1) {
+      // 1 ээс ялгаатай тоо буулаа. Буусан тоог тоглогчид нэмж өгнө
+      roundScore = roundScore + diceNumber;
+      document.getElementById(
+        "current-" + activePlayer
+      ).textContent = roundScore;
+    } else {
+      switchToNextPlayer();
+    }
   } else {
-    switchToNextPlayer();
+    alert("Тоглоом дууссан байна. New Game товчийг дарж шинээр эхлэнэ үү.");
   }
 });
 // Hold товчны эвент листенер
 document.querySelector(".btn-hold").addEventListener("click", function () {
-  //Уг тоглогчийн цуглуулсан ээлжний оноог глобл оноон дээр нь нэмж өгнө
-  scores[activePlayer] = scores[activePlayer] + roundScore;
-  // Дэлгэц дээр оноог нь өөрчлөнө
-  document.getElementById("score-" + activePlayer).textContent =
-    scores[activePlayer];
-  //Уг тоглогч хожсон эсэхийг (оноо нь 100ас их эсэхийг) шалгах
-  if (scores[activePlayer] >= 10) {
-    //Ялагч гэсэн текстийг нэрнийх нь оронд гаргана
-    document.getElementById("name-" + activePlayer).textContent = "WINNER!!!";
-    document
-      .querySelector(".player-" + activePlayer + "-panel")
-      .classList.add("winner");
-    document
-      .querySelector(".player-" + activePlayer + "-panel")
-      .classList.remove("active");
+  if (isNewGame) {
+    //Уг тоглогчийн цуглуулсан ээлжний оноог глобл оноон дээр нь нэмж өгнө
+    scores[activePlayer] = scores[activePlayer] + roundScore;
+    // Дэлгэц дээр оноог нь өөрчлөнө
+    document.getElementById("score-" + activePlayer).textContent =
+      scores[activePlayer];
+    //Уг тоглогч хожсон эсэхийг (оноо нь 100ас их эсэхийг) шалгах
+    if (scores[activePlayer] >= 100) {
+      //Тоглоомыг дууссан төлөвт оруулна
+      isNewGame = false;
+      //Ялагч гэсэн текстийг нэрнийх нь оронд гаргана
+      document.getElementById("name-" + activePlayer).textContent = "WINNER!!!";
+      document
+        .querySelector(".player-" + activePlayer + "-panel")
+        .classList.add("winner");
+      document
+        .querySelector(".player-" + activePlayer + "-panel")
+        .classList.remove("active");
+    } else {
+      //Тоглогчийн ээлжийг солино
+      switchToNextPlayer();
+    }
   } else {
-    //Тоглогчийн ээлжийг солино
-    switchToNextPlayer();
+    alert("Тоглоом дууссан байна. New Game товчийг дарж шинээр эхлэнэ үү.");
   }
 });
 //Энэ функц нь тоглох ээлжийг дараагийн тоглогч рүү шилжүүлнэ
